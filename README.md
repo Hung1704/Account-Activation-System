@@ -1,44 +1,49 @@
 # NYCU ADFP Cloud 2.0 Account Activation System
 
-This project is designed to facilitate the management and activation of ADFP accounts for students and researchers at National Yang Ming Chiao Tung University (NYCU). The system handles account activation by verifying course/research keys, uploading necessary documents (such as Proof of Enrollment and NDA), and generating credentials for both ADFP and VPN access. Developed with Flask, this web-based solution ensures security by utilizing key-based authentication and session management.
+This project provides a secure platform for students and researchers at National Yang Ming Chiao Tung University (NYCU) to activate their ADFP accounts. The system ensures data security through key-based authentication, account credential generation, and file upload functionality, including the binding of VPN and server accounts to individual users.
 
 ## Key Features
 
-* **Account Authentication**: Securely validates user information against pre-uploaded course or research keys.
-* **Credential Management**: Automatically generates and provides ADFP and VPN account details to users, ensuring they are bound securely to their respective owners.
-* **File Uploads**: Users are required to upload a proof of enrollment and a signed NDA to complete the activation process.
-* **Session Management**: User data is stored securely in sessions to prevent unauthorized access.
-* **Credential Download**: Once an account is activated, users can download their account credentials in an Excel file for safekeeping.
-* **User Responsibility and Regulation**: The system enforces strict usage rules and responsibilities through a checkbox agreement section, ensuring compliance.
-
-## How to Use
-
-1. **Run the Application**: Launch the Flask application with `python ADFP_Account.py`.
-2. **Access the System**: Open your browser and navigate to `http://localhost:8080/`.
-3. **Fill in Information**: Complete the account and personal details form on the homepage, and upload the key file provided by the TA or Lab supervisor.
-4. **Upload Documents**: After key validation, upload the required documents: a PNG file of the proof of enrollment and the signed NDA.
-5. **Confirm and Bind Account**: Agree to the terms and regulations by checking the boxes and confirm the binding of your account.
-6. **Download Credentials**: After account activation, download your ADFP and VPN credentials. The credentials will only be displayed once.
+* **Account Authentication**: Verifies users by checking course or lab keys before allowing account binding.
+* **Single Account Binding**: Each account can only be bound to one user. Once bound, the account cannot be re-bound unless manually unbound by removing the lock file.
+* **Credential Generation**: Automatically provides users with their ADFP and VPN credentials upon successful account activation.
+* **File Uploads**: Users must upload their Proof of Enrollment and NDA during the account activation process.
+* **Credential Download**: After activation, users can download their credentials as an Excel file for safekeeping.
+* **Session Management**: Securely manages user sessions throughout the activation process.
 
 ## Command Line Utilities
 
-The following utility scripts are provided to manage the ADFP Account system:
+The system includes utility scripts to help manage the application:
 
 1. **01\_run\_ADFP\_Account**:
 
    * Command: `nohup python ADFP_Account.py &`
-   * This script runs the Flask application in the background. Using `nohup` ensures the process continues running even after the terminal is closed. The `&` allows it to run as a background process.
+   * Runs the Flask application in the background. Using `nohup` ensures the process continues even after the terminal is closed.
 
 2. **02\_check**:
 
    * Command: `ps -aux | grep "python ADFP_Account.py" | grep -v grep`
-   * This script checks whether the `ADFP_Account.py` Flask application is running. It uses the `ps -aux` command to list all processes, and `grep` is used to filter for the specific process related to the ADFP account system.
+   * Checks if the `ADFP_Account.py` process is currently running.
 
 3. **03\_kill**:
 
    * Command: `kill \`ps -aux | grep "python ADFP\_Account.py" | grep -v grep | awk '{print $2}'\`\`
-   * This script terminates the running `ADFP_Account.py` process. It finds the process ID using `ps -aux` and `grep` and then kills it using the `kill` command.
-     
+   * Terminates the running `ADFP_Account.py` process.
+
+## How to Use
+
+1. **Start the Application**: Run the application using the command `nohup python ADFP_Account.py &`.
+
+2. **Access the System**: Open a browser and go to `http://localhost:8080/`.
+
+3. **Fill in Your Information**: Complete the account information form and upload the course or lab key to verify your identity.
+
+4. **Upload Documents**: Upload your Proof of Enrollment and the signed NDA as PNG files.
+
+5. **Confirm and Bind**: Review your information, agree to the terms and regulations, and complete the account binding process.
+
+6. **Download Credentials**: After account activation, you can download your ADFP and VPN credentials. Be sure to save them immediately as they are only displayed once.
+
 ## Folder Structure
 
 ```php
@@ -56,14 +61,51 @@ ADFP_Account_Register_System
 └── uploads/                       # Temporary storage for uploaded files
 ```
 
+
+## Folder Structure and File Descriptions
+
+Each course or lab has its own set of files that are essential to the activation process. Below is an example of the `2024_Summer/pmic` folder:
+
+```php-template
+└── 2024_Summer
+    └── pmic
+        ├── 2024_Summer_pmic_ADFP.xlsx
+        ├── 2024_Summer_pmic.key
+        ├── 2024_Summer_pmic_VPN.xlsx
+        ├── INFO/
+        │   └── pmic005_info.xlsx
+        ├── LOCK/
+        │   └── pmic005.lock
+        ├── NDA/
+        │   └── pmic005_<Name>_NDA.png
+        └── STU/
+            └── pmic005_<Name>_stu.png
+```
+
+### File Descriptions:
+
+* **2024\_Summer\_pmic\_ADFP.xlsx**: Contains ADFP account credentials for students enrolled in the course.
+* **2024\_Summer\_pmic.key**: The key file provided by the TA or Lab supervisor for students to verify their enrollment during the account activation process.
+* **2024\_Summer\_pmic\_VPN.xlsx**: Stores the VPN credentials for each student, including account names and passwords.
+* **INFO/pmic005\_info.xlsx**: Created after account activation, containing student information and their generated credentials.
+* **LOCK/pmic005.lock**: A lock file created after successful binding to prevent the account from being re-bound. This lock must be manually deleted if re-binding is required.
+* **NDA/pmic005\_<Name>\_NDA.png**: The signed Non-Disclosure Agreement uploaded by the student.
+* **STU/pmic005\_<Name>\_stu.png**: The Proof of Enrollment uploaded by the student.
+
+### Account Binding and Lock File
+
+Each account is limited to a **single binding**. Once the account is bound to a user, no further uploads or changes can be made unless the **lock file** is removed. The lock file (`LOCK/pmic005.lock`) ensures that the account is securely bound. If unbinding is required, the lock file must be manually deleted, after which the binding process can be repeated.
+
 ## System Requirements
 
 * **Flask**: Web framework for Python
-* **Pandas**: Used for processing Excel files
-* **Portalocker**: Provides file locking mechanisms
-* **xlsxwriter**: For writing Excel files
+* **Pandas**: Data manipulation library for reading and writing Excel files.
+* **Portalocker**: For file locking mechanisms to ensure key file integrity.
+* **xlsxwriter**: Used for writing Excel files.
 
-To install the necessary dependencies, use:
+### Installation
+
+To install the required dependencies, run:
 
 ```bash
 pip install flask pandas portalocker xlsxwriter
@@ -95,5 +137,4 @@ pip install flask pandas portalocker xlsxwriter
 * **Session-Based Authentication**: User data is temporarily stored in the session to prevent unauthorized access during the account activation process.
 * **File Locking**: The system ensures that key files are not overwritten by using file locks, guaranteeing the integrity of uploaded keys.
 * **Single Use Credentials**: Once displayed, the ADFP and VPN credentials are not shown again, and users are encouraged to change passwords immediately.
-
 
