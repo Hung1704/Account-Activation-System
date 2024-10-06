@@ -20,6 +20,25 @@ This project is designed to facilitate the management and activation of ADFP acc
 5. **Confirm and Bind Account**: Agree to the terms and regulations by checking the boxes and confirm the binding of your account.
 6. **Download Credentials**: After account activation, download your ADFP and VPN credentials. The credentials will only be displayed once.
 
+## Command Line Utilities
+
+The following utility scripts are provided to manage the ADFP Account system:
+
+1. **01\_run\_ADFP\_Account**:
+
+   * Command: `nohup python ADFP_Account.py &`
+   * This script runs the Flask application in the background. Using `nohup` ensures the process continues running even after the terminal is closed. The `&` allows it to run as a background process.
+
+2. **02\_check**:
+
+   * Command: `ps -aux | grep "python ADFP_Account.py" | grep -v grep`
+   * This script checks whether the `ADFP_Account.py` Flask application is running. It uses the `ps -aux` command to list all processes, and `grep` is used to filter for the specific process related to the ADFP account system.
+
+3. **03\_kill**:
+
+   * Command: `kill \`ps -aux | grep "python ADFP\_Account.py" | grep -v grep | awk '{print $2}'\`\`
+   * This script terminates the running `ADFP_Account.py` process. It finds the process ID using `ps -aux` and `grep` and then kills it using the `kill` command.
+     
 ## Folder Structure
 
 ```php
