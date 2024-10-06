@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYCU ADFP Cloud 2.0 - 文件上傳 / Document Upload</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .submit-btn, .back-btn {
+            width: 48%; /* 统一为48%宽度 */
+            background-color: #2c3e50; /* 藏青色背景 */
+            color: #ffffff; /* 白色文字 */
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            text-decoration: none; /* 移除链接样式 */
+            display: inline-block;
+        }
+
+        .submit-btn:hover, .back-btn:hover {
+            background-color: #1a252f; /* 更深的藏青色，在悬停时使用 */
+        }
+
+        .submit-btn:disabled {
+            background-color: #ccc; /* 禁用状态时的浅灰色背景 */
+            cursor: not-allowed;
+        }
+
+        .submit-btn.enabled {
+            background-color: #2c3e50; /* 启用状态的藏青色背景 */
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .button-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .submit-btn,
+            .back-btn {
+                width: 100%; /* 移动设备时宽度100% */
+                margin-bottom: 10px;
+            }
+        }
+
+        .file-requirements {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .download-link {
+            margin-left: 10px;
+            font-size: 0.9em;
+            color: #007bff;
+            text-decoration: underline;
+            display: block; /* 确保在新行上 */
+            margin-top: 5px;
+        }
+
+        .confirmation-section {
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .preview-image {
+            margin-top: 10px;
+            max-width: 100%;
+            max-height: 300px;
+            display: none;
+        }
+
+        .upload-row {
+            display: flex;
+            align-items: flex-start; /* 更改为flex-start以允许行高调整 */
+            margin-top: 5px;
+            flex-direction: column; /* 垂直排列 */
+        }
+
+        .upload-row label {
+            flex: 1;
+            font-weight: bold; /* 使标题加粗 */
+            margin-bottom: 5px; /* 添加下边距以分开标题和描述 */
+        }
+
+        .upload-row .description {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .upload-row button {
+            margin-top: 10px; /* 增加与前面内容的间距 */
+        }
+
+
+        
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .info-table th, .info-table td {
+            padding: 15px;
+            text-align: center; /* 水平居中 */
+            vertical-align: middle; /* 垂直居中 */
+            border-bottom: 1px solid #ddd;
+        }
+
+        .info-table th {
+            background-color: #2c3e50; /* 藏青色 */
+            color: #ffffff;
+        }
+
+        .info-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .info-table td {
+            background-color: #f8f9fa; /* 浅灰色 */
+            color: #343a40; /* 深灰色 */
+        }
+
+        /* 使用規範清單樣式 */
+        .regulation-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .regulation-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .regulation-item label {
+            display: block; /* 标题占一行 */
+            font-weight: bold;
+            color: #2c3e50; /* 藏青色 */
+            margin-bottom: 5px; /* 与描述分开 */
+        }
+
+        .regulation-item .description {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .regulation-item input[type="checkbox"] {
+            margin-top: 10px; /* 复选框与描述的间距 */
+            transform: scale(1.2); /* 放大复选框 */
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1>NYCU ADFP Cloud 2.0 帳號開通系統 </h1>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="alert-container">
+                  {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <section class="instructions">
+                <h2>確認您的資訊 / Confirm Your Information</h2>
+                <table class="info-table">
+                    <tr>
+                        <th>帳號類型 / Account Type</th>
+                        <td>{{ session['account_type'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>帳號名稱 / Account Name</th>
+                        <td>{{ session['account_name'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>學號 / Student ID</th>
+                        <td>{{ session['student_id'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>姓名 / Name</th>
+                        <td>{{ session['name'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>信箱 / Email</th>
+                        <td>{{ session['email'] }}</td>
+                    </tr>
+                    {% if session['account_type'] == 'course' %}
+                    <tr>
+                        <th>課程代號 / Course Code</th>
+                        <td>{{ session['course_code'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>學期 / Semester</th>
+                        <td>{{ session['semester'] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <th>實驗室代號 / Lab Code</th>
+                        <td>{{ session['lab_code'] }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </section>
+
+            <section class="form-section">
+                <h2>使用規範與責任條款 / Usage Regulations and Responsibilities</h2>
+                <ul class="regulation-list">
+                    <li class="regulation-item">
+                        <label>1. 使用者個人責任 / User Responsibility:</label>
+                        <span class="description">使用者必須保護分配的帳號與密碼，嚴禁分享或外借。違規者將承擔法律責任及學校處罰，並可能受到台積電的民刑事追訴。 Users must protect their assigned account and password, strictly prohibiting sharing or lending them. Violators will bear legal responsibility and school penalties, and may face civil and criminal actions by TSMC.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                    <li class="regulation-item">
+                        <label>2. 授權使用限制 / Authorized Use Restrictions:</label>
+                        <span class="description">授權帳號僅限於執行授權目的使用，不得在公眾場所使用，也不得對技術資料進行複製、拍照或下載。 The authorized account is strictly for executing the authorized purpose and must not be used in public places or for copying, photographing, or downloading technical data.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                    <li class="regulation-item">
+                        <label>3. 善良管理人義務 / Duty of Care:</label>
+                        <span class="description">使用者必須在授權期間和授權結束後，嚴格遵守保密義務，並在接到返還或銷毀要求後立即處理所有相關資料。 Users must strictly adhere to confidentiality obligations during and after the authorization period, immediately handling all related materials upon receiving a return or destruction request.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                    <li class="regulation-item">
+                        <label>4. 密碼保護 / Password Protection:</label>
+                        <span class="description">使用者必須使用密碼保護的VPN連接進行操作，並在首次登入後立即更改預設密碼。 Users must operate using a password-protected VPN connection and immediately change the default password after the first login.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                    <li class="regulation-item">
+                        <label>5. 技術問題處理 / Handling Technical Issues:</label>
+                        <span class="description">使用者不得使用拍照或截圖等方式在社交平台上詢問技術問題，應使用指定的 Chat 平台進行溝通。 Users must not use photos or screenshots to inquire about technical issues on social platforms; designated Chat platforms should be used for communication.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                    <li class="regulation-item">
+                        <label>6. 伺服器連接與操作 / Server Connection and Operation:</label>
+                        <span class="description">使用者需通過綁定的 VPN 帳號連接伺服器，並使用分配的帳號登入。伺服器限制遠端桌面的剪貼簿功能及下載功能。 Users must connect to the server using the bound VPN account and log in with the assigned account. The server restricts clipboard and download functions in remote desktop sessions.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                    <li class="regulation-item">
+                        <label>7. 設備使用規範 / Equipment Usage Rules:</label>
+                        <span class="description">使用伺服器期間，嚴禁使用3C產品、手機進行拍照、錄影、錄音或插入USB等操作。違規者帳號將被立即取消。 During server use, it is strictly prohibited to use 3C products, mobile phones for taking photos, videos, recordings, or inserting USB devices. Violators' accounts will be immediately canceled.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                    <li class="regulation-item">
+                        <label>8. 資源使用限制 / Resource Usage Limitations:</label>
+                        <span class="description">學生帳號最多可使用 8 顆 CPU，RA/TA 帳號最多可使用 16 顆 CPU，任一程式不可超過兩週。長期過量使用資源者將被停權。 Student accounts may use up to 8 CPUs, RA/TA accounts up to 16 CPUs, and no single program may run for more than two weeks. Long-term excessive use of resources will result in account suspension.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                    <li class="regulation-item">
+                        <label>9. 家目錄空間限制 / Home Directory Space Limit:</label>
+                        <span class="description">學生帳號儲存空間限制在 30GB，TA 帳號限制在 50GB，超過限制將鎖定帳號，並需聯繫管理員解鎖。 Student account storage is limited to 30GB, TA accounts to 50GB. Exceeding the limit will lock the account, requiring administrator intervention to unlock.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                    <li class="regulation-item">
+                        <label>10. 違規處罰 / Penalties for Violations:</label>
+                        <span class="description">違規行為如帳號外借、破壞系統或過量使用資源將受到嚴格處罰，初犯者將被提醒，累犯將停權兩星期。 Violations such as account lending, system tampering, or excessive resource use will be strictly punished. First-time offenders will be warned; repeat offenders will face a two-week suspension.</span>
+                        <input type="checkbox" class="regulation-checkbox" required>
+                    </li>
+                </ul>
+                <form id="uploadForm" method="POST" action="{{ url_for('upload_documents') }}">
+                    <div class="upload-row">
+                        <label>11. 上傳在學證明/學生證  Upload Student ID / Proof of Enrollment</label>
+                        <span class="description">僅接受圖片檔案 *png，請命名為 {{ session['account_name'] }}_{{ session['name'] }}_stu.png</span>
+                        <span class="description">Only PNG files accepted, please name the file as {{ session['account_name'] }}_{{ session['name'] }}_stu.png</span>
+                    </div>
+                    <div class="upload-row">
+                        <input type="file" id="stu_file" name="stu_file" class="input-file" accept=".png" required>
+                        <button type="button" onclick="uploadFile('stu_file')">上傳 / Upload</button>
+                    </div>
+                    <img id="stu_preview" class="preview-image" alt="在學證明預覽 / Proof of Enrollment Preview">
+
+                    <div class="upload-row">
+                        <label>12. 上傳使用者切結書 NDA  Upload NDA</label>
+                        <span class="description">僅接受圖片檔案 *png，請命名為 {{ session['account_name'] }}_{{ session['name'] }}_NDA.png</span>
+                        <span class="description">Only PNG files accepted, please name the file as {{ session['account_name'] }}_{{ session['name'] }}_NDA.png</span>
+                    </div>
+                    <div class="upload-row">
+                        <input type="file" id="nda_file" name="nda_file" class="input-file" accept=".png" required>
+                        <button type="button" onclick="uploadFile('nda_file')">上傳 / Upload</button>
+                    </div>
+                    <a href="{{ url_for('static', filename='NDA.pdf') }}" class="download-link" target="_blank">[點我下載 ADFP NDA / Download NDA]</a>
+                    <img id="nda_preview" class="preview-image" alt="NDA預覽 / NDA Preview">
+
+                    <div class="confirmation-section">
+                        <label>
+                            <input type="checkbox" id="data_confirmed" name="data_confirmed" required> 我已確認上述資料無誤 / I confirm that the above information is accurate.
+                        </label>
+                    </div>
+
+                    <div class="confirmation-section">
+                        <label>
+                            <input type="checkbox" id="agreement_confirmed" name="agreement_confirmed" required> 已知悉以上所有規定及資料保密義務，並同意本伺服器蒐集使用者以上所填寫的資料 / I acknowledge and agree to all of the above regulations and confidentiality obligations, and consent to the collection of the above information by the server.
+                        </label>
+                    </div>
+
+                    <div class="button-group">
+                        <a href="{{ url_for('home') }}" class="back-btn">上一步 / Previous Step</a>
+                        <button type="submit" class="submit-btn" id="confirm_btn" disabled>確認綁定帳號 / Confirm Account Binding</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>© 2024 NYCU ADFP Cloud 2.0. Created by 
+                <a href="https://www.lhlaib.com" target="_blank" style="color: #3498db; text-decoration: none; transition: color 0.3s ease;">
+                    Lin-Hung Lai
+                </a>. All rights reserved.
+            </p>
+            <p>System Integration and Silicon Implementation Lab. ED430. Tel: +886-3-5712121 ext.54238</p>
+            <p>Institute of Electronics Engineering; National Yang Ming Chiao Tung University;</p>
+        </div>
+    </footer>
+    
+    <style>
+        .site-footer a:hover {
+            color: #2980b9; /* 鼠标悬停时的颜色变化 */
+            text-decoration: underline;
+        }
+    </style>
+
+    <script>
+        function uploadFile(fileId) {
+            const fileInput = document.getElementById(fileId);
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("請選擇一個文件進行上傳 / Please select a file to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("file_type", fileId);
+
+            fetch("/upload_file", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.file_path) {
+                    const previewId = fileId === "stu_file" ? "stu_preview" : "nda_preview";
+                    const previewImage = document.getElementById(previewId);
+                    previewImage.src = data.file_path;
+                    previewImage.style.display = "block";
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error uploading file:", error);
+                alert("文件上傳失敗，請稍後再試 / File upload failed, please try again later.");
+            });
+        }
+
+        document.getElementById('data_confirmed').addEventListener('change', toggleSubmitButton);
+        document.getElementById('agreement_confirmed').addEventListener('change', toggleSubmitButton);
+
+        function toggleSubmitButton() {
+            const dataConfirmed = document.getElementById('data_confirmed').checked;
+            const agreementConfirmed = document.getElementById('agreement_confirmed').checked;
+            const regulationCheckboxes = document.querySelectorAll('.regulation-checkbox');
+            const allChecked = Array.from(regulationCheckboxes).every(checkbox => checkbox.checked);
+            const confirmBtn = document.getElementById('confirm_btn');
+            
+            if (dataConfirmed && agreementConfirmed && allChecked) {
+                confirmBtn.disabled = false;
+                confirmBtn.classList.add('enabled');
+            } else {
+                confirmBtn.disabled = true;
+                confirmBtn.classList.remove('enabled');
+            }
+        }
+    </script>
+</body>
+</html>

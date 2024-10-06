@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYCU ADFP Cloud 2.0 帳號開通系統</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1>NYCU ADFP Cloud 2.0 帳號開通系統</h1>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="alert-container">
+                  {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <section class="instructions">
+                <p><strong>歡迎使用 NYCU ADFP Cloud 2.0 服務！</strong></p>
+                <p>
+                    本服務系統感謝<a href="https://www.lhlaib.com" target="_blank" style="color: #3498db; text-decoration: none; transition: color 0.3s ease;">賴林鴻</a>博士協助開發，提供學生和研究人員使用。
+                    為了確保伺服器資料的安全，每個帳號必須綁定到指定的使用者。該使用者需對帳號的安全和使用負責。如果發現濫用或非法行為，將依法追究責任。
+                </p>
+                <p style="color: red;">
+                    我們<strong>強烈建議</strong>您在首次登入伺服器後立即更改預設密碼，防止帳號被他人盜用。
+                </p>
+                <p><strong>綁定流程：</strong></p>
+                <ol>
+                    <li>填寫帳號和個人資訊，並上傳助教提供的課程或研究金鑰。</li>
+                    <li>確認預覽資訊無誤後，上傳您的「在學證明/學生證」（正反面合成一份 PNG）。</li>
+                    <li>下載並簽署使用者切結書 (NDA)，然後將簽好的檔案上傳。勾選已知悉並同意所有規定，然後提交。</li>
+                </ol>
+                <p><strong>開通完成後，系統將顯示：</strong></p>
+                <ul>
+                    <li>一組 VPN 帳號和密碼</li>
+                    <li>一組伺服器帳號和密碼</li>
+                </ul>
+                <p style="color: red;">
+                    此資訊僅顯示一次，請務必保存，並立即登入伺服器更改密碼。
+                </p>
+                <p><strong style="color: red;">請注意：</strong> 帳號一旦綁定後，無法更改綁定使用者，也無法再次綁定。請確保填寫正確，如有異動需聯絡管理員重新開通。</p>
+
+                <hr>
+
+                <p><strong>Welcome to NYCU ADFP Cloud 2.0 Service!</strong></p>
+                <p>
+                    This system is developed with the assistance of <a href="https://www.lhlaib.com" target="_blank" style="color: #3498db; text-decoration: none; transition: color 0.3s ease;">Dr. Lin-Hung Lai</a>, providing students and researchers with access to the service. 
+                    To ensure the security of server data, each account must be bound to a designated user. The user is responsible for the security and usage of the account. If misuse or illegal activities are found, legal responsibility will be pursued.
+                </p>
+                <p style="color: red;">
+                    We <strong>strongly recommend</strong> that you change the default password immediately after logging into the server for the first time to prevent unauthorized access.
+                </p>
+                <p><strong>Binding Process:</strong></p>
+                <ol>
+                    <li>Fill in the account and personal information, and upload the course or research key provided by the TA.</li>
+                    <li>After confirming that the preview information is correct, upload your "Proof of Enrollment/Student ID" (merged into a single PNG).</li>
+                    <li>Download and sign the NDA, then upload the signed document. Check the box to acknowledge and agree to all the terms, and then submit.</li>
+                </ol>
+                <p><strong>After activation, the system will display:</strong></p>
+                <ul>
+                    <li>A server account and password</li>
+                    <li>A VPN account and password</li>
+                </ul>
+                <p style="color: red;">
+                    This information is displayed only once, so please make sure to save it and change the password immediately after logging into the server.
+                </p>
+                <p><strong style="color: red;">Please Note:</strong> Once the account is bound, it cannot be re-bound or changed. Please ensure the information is correct. If there are any changes, contact the administrator to re-enable the account.</p>
+            </section>
+
+            <section class="form-section">
+                <form action="/submit" method="post" enctype="multipart/form-data">
+                    <div class="input-group">
+                        <label for="account_type">帳號類型 / Account Type:</label>
+                        <select id="account_type" name="account_type" class="dropdown" >
+                            <option value="course">課程帳號 / Course Account</option>
+                            <option value="lab">研究帳號 / Research Account</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="course_group">
+                        <label for="course_code">課程代號 / Course Code:</label>
+                        <input type="text" id="course_code" name="course_code" class="input-field" >
+                    </div>
+
+                    <div class="input-group" id="semester_group">
+                        <label for="semester">學期 / Semester:</label>
+                        <select id="semester" name="semester" class="dropdown">
+                            <option value="2024_Fall">2024 Fall</option>
+                            <option value="2024_Summer">2024 Summer</option>
+                            <option value="2024_Spring">2024 Spring</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="lab_group" style="display:none;">
+                        <label for="lab_code">實驗室代號 / Lab Code:</label>
+                        <input type="text" id="lab_code" name="lab_code" class="input-field">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="account_name">啟用帳號 / Account Name:</label>
+                        <input type="text" id="account_name" name="account_name" class="input-field" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="student_id">學號 / Student ID:</label>
+                        <input type="text" id="student_id" name="student_id" class="input-field" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="name">姓名 / Name:</label>
+                        <input type="text" id="name" name="name" class="input-field" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email">信箱 / Email:</label>
+                        <input type="email" id="email" name="email" class="input-field" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="key_file">上傳金鑰 / Upload Key File:</label>
+                        <input type="file" id="key_file" name="key_file" class="input-file" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">下一步 / Next Step</button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>© 2024 NYCU ADFP Cloud 2.0. Created by 
+                <a href="https://www.lhlaib.com" target="_blank" style="color: #3498db; text-decoration: none; transition: color 0.3s ease;">
+                    Lin-Hung Lai
+                </a>. All rights reserved.
+            </p>
+            <p>System Integration and Silicon Implementation Lab. ED430. Tel: +886-3-5712121 ext.54238</p>
+            <p>Institute of Electronics Engineering; National Yang Ming Chiao Tung University;</p>
+        </div>
+    </footer>
+    
+    <style>
+        .site-footer a:hover {
+            color: #2980b9; /* 鼠标悬停时的颜色变化 */
+            text-decoration: underline;
+        }
+    </style>
+    
+    
+
+    <script>
+        document.getElementById('account_type').addEventListener('change', function () {
+            var courseGroup = document.getElementById('course_group');
+            var semesterGroup = document.getElementById('semester_group');
+            var labGroup = document.getElementById('lab_group');
+
+            if (this.value === 'course') {
+                courseGroup.style.display = 'block';
+                semesterGroup.style.display = 'block';
+                labGroup.style.display = 'none';
+            } else {
+                courseGroup.style.display = 'none';
+                semesterGroup.style.display = 'none';
+                labGroup.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

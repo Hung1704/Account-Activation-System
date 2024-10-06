@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帳號啟用成功 / Account Activation Successful</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1>NYCU ADFP Cloud 2.0 帳號啟用成功</h1>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="alert-container">
+                  {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <p><strong><strong style="color: red;">{{ adfp_account }}</strong> 帳號啟用成功，並綁定使用者 {{ name }}。Account activated successfully and bound to user {{ name }}.</strong></p>
+
+            <div class="card">
+                <h2>VPN 資訊 / Information</h2>
+                <p><strong>帳號 / Account:</strong> {{ vpn_account }}</p>
+                <div class="password-container">
+                    <p><strong>密碼 / Password:</strong> <span id="vpn-password" class="password" style="color: red;">******</span></p>
+                    <button type="button" class="toggle-password" onclick="togglePassword('vpn-password', '{{ vpn_password }}')">顯示密碼 / Show Password</button>
+                </div>
+                <p><em>(VPN 密碼不可更改，請務必紀錄此組密碼)</em></p>
+                <p><em>(VPN password cannot be changed, please make sure to record this password)</em></p>
+            </div>
+
+            <div class="card">
+                <h2>ADFP 伺服器資訊 / Server Information</h2>
+                <p><strong>帳號 / Account:</strong> {{ adfp_account }}</p>
+                <div class="password-container">
+                    <p><strong>密碼 / Password:</strong> <span id="adfp-password" class="password" style="color: red;">******</span></p>
+                    <button type="button" class="toggle-password" onclick="togglePassword('adfp-password', '{{ adfp_password }}')">顯示密碼 / Show Password</button>
+                </div>
+                <p><em>(請登入伺服器後，立即使用 <code>passwd</code> 指令更改密碼)</em></p>
+                <p><em>(Please log in to the server and use the <code>passwd</code> command to change your password immediately)</em></p>
+            </div>
+
+            <a href="{{ url_for('download_credentials') }}" class="download-btn">下載密碼資訊 / Download Password Information</a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>© 2024 NYCU ADFP Cloud 2.0. Created by 
+                <a href="https://www.lhlaib.com" target="_blank" style="color: #3498db; text-decoration: none; transition: color 0.3s ease;">
+                    Lin-Hung Lai
+                </a>. All rights reserved.
+            </p>
+            <p>System Integration and Silicon Implementation Lab. ED430. Tel: +886-3-5712121 ext.54238</p>
+            <p>Institute of Electronics Engineering; National Yang Ming Chiao Tung University;</p>
+        </div>
+    </footer>
+    
+    <style>
+        .site-footer a:hover {
+            color: #2980b9; /* 鼠标悬停时的颜色变化 */
+            text-decoration: underline;
+        }
+    </style>
+
+    <script>
+        function togglePassword(elementId, password) {
+            const element = document.getElementById(elementId);
+            if (element.textContent === '******') {
+                element.textContent = password;
+            } else {
+                element.textContent = '******';
+            }
+        }
+    </script>
+</body>
+</html>
